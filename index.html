@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia Educativa</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f4f8;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    .question-box {
+      background: #fff;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #e0e0e0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options button.correct {
+      background-color: #4caf50;
+      color: white;
+    }
+    .options button.incorrect {
+      background-color: #f44336;
+      color: white;
+    }
+    .options button:disabled {
+      cursor: not-allowed;
+    }
+    #nextBtn {
+      padding: 10px 20px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: not-allowed;
+      opacity: 0.5;
+      margin-top: 20px;
+    }
+    #nextBtn.active {
+      cursor: pointer;
+      opacity: 1;
+    }
+    #result {
+      text-align: center;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="animate__animated animate__fadeInDown">Trivia de Conocimientos Generales</h1>
+  <div id="quizContainer" class="question-box animate__animated animate__fadeIn">
+    <div id="question"></div>
+    <div class="options" id="options"></div>
+    <button id="nextBtn">Siguiente</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    const questions = [
+      {
+        question: "¿Cuál es la capital de Francia?",
+        options: ["Madrid", "París", "Roma", "Berlín"],
+        answer: 1
+      },
+      {
+        question: "¿Qué planeta es conocido como el planeta rojo?",
+        options: ["Venus", "Saturno", "Marte", "Júpiter"],
+        answer: 2
+      },
+      {
+        question: "¿Cuántos continentes hay en el mundo?",
+        options: ["5", "6", "7", "8"],
+        answer: 2
+      },
+      {
+        question: "¿Quién escribió 'Don Quijote de la Mancha'?",
+        options: ["Gabriel García Márquez", "Miguel de Cervantes", "Pablo Neruda", "Mario Vargas Llosa"],
+        answer: 1
+      },
+      {
+        question: "¿Cuál es el animal más grande del planeta?",
+        options: ["Elefante", "Ballena Azul", "Jirafa", "Tiburón Blanco"],
+        answer: 1
+      },
+      {
+        question: "¿Cuál es el símbolo químico del agua?",
+        options: ["O2", "H2", "CO2", "H2O"],
+        answer: 3
+      },
+      {
+        question: "¿Qué país ganó la Copa Mundial de Fútbol 2018?",
+        options: ["Argentina", "Alemania", "Francia", "Brasil"],
+        answer: 2
+      },
+      {
+        question: "¿Cuántos lados tiene un hexágono?",
+        options: ["5", "6", "7", "8"],
+        answer: 1
+      },
+      {
+        question: "¿Cuál es el órgano principal del sistema circulatorio?",
+        options: ["Pulmón", "Riñón", "Corazón", "Hígado"],
+        answer: 2
+      },
+      {
+        question: "¿Qué instrumento se usa para medir la temperatura?",
+        options: ["Barómetro", "Termómetro", "Anemómetro", "Multímetro"],
+        answer: 1
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+
+    const questionEl = document.getElementById("question");
+    const optionsEl = document.getElementById("options");
+    const nextBtn = document.getElementById("nextBtn");
+    const resultEl = document.getElementById("result");
+
+    function showQuestion(index) {
+      const q = questions[index];
+      questionEl.innerHTML = `<h2>${index + 1}. ${q.question}</h2>`;
+      optionsEl.innerHTML = "";
+      nextBtn.classList.remove("active");
+      nextBtn.disabled = true;
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.textContent = opt;
+        btn.onclick = () => selectAnswer(i, btn);
+        optionsEl.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(selected, btn) {
+      const correct = questions[currentQuestion].answer;
+      const buttons = optionsEl.querySelectorAll("button");
+      buttons.forEach((b, i) => {
+        b.disabled = true;
+        if (i === correct) b.classList.add("correct");
+        if (i === selected && i !== correct) b.classList.add("incorrect");
+      });
+      if (selected === correct) score++;
+      nextBtn.classList.add("active");
+      nextBtn.disabled = false;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentQuestion++;
+      if (currentQuestion < questions.length) {
+        showQuestion(currentQuestion);
+      } else {
+        showResult();
+      }
+    });
+
+    function showResult() {
+      quizContainer.style.display = "none";
+      let feedback = "";
+      const percent = (score / questions.length) * 100;
+      if (percent === 100) feedback = "¡Excelente! ¡Has respondido todo correctamente! 🏆";
+      else if (percent >= 80) feedback = "¡Muy bien! Tienes muy buenos conocimientos. 💪";
+      else if (percent >= 50) feedback = "Bien hecho, pero puedes mejorar. 😉";
+      else feedback = "¡Ánimo! Puedes estudiar un poco más y volver a intentarlo. 📚";
+
+      resultEl.innerHTML = `
+        <div class="question-box animate__animated animate__fadeInUp">
+          <h2>Tu puntuación: ${score}/${questions.length}</h2>
+          <p>${feedback}</p>
+        </div>
+      `;
+    }
+
+    showQuestion(currentQuestion);
+  </script>
+</body>
+</html>
